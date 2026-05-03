@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Car } from '../types/car';
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import type { Car } from "@/types/car";
 
 interface CarFilterProps {
   cars: Car[];
@@ -14,344 +16,207 @@ interface FilterState {
   transmissionTypes: string[];
 }
 
-const CarFilter: React.FC<CarFilterProps> = ({ cars, onFilter }) => {
+export default function CarFilter({ cars, onFilter }: CarFilterProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Get unique values from cars
-  const allBrands = Array.from(new Set(cars.map(car => car.brand))).sort();
-  const allFuelTypes = Array.from(new Set(cars.map(car => car.fuel))).sort();
-  const allTransmissions = Array.from(new Set(cars.map(car => car.transmission))).sort();
-  
-  const minPrice = Math.min(...cars.map(car => car.price));
-  const maxPrice = Math.max(...cars.map(car => car.price));
-  const minYear = Math.min(...cars.map(car => car.year));
-  const maxYear = Math.max(...cars.map(car => car.year));
+
+  const stats = useMemo(() => {
+    const prices = cars.map((car) => car.price).filter(Number.isFinite);
+    const years = cars.map((car) => car.year).filter(Number.isFinite);
+    return {
+      allBrands: Array.from(new Set(cars.map((car) => car.brand).filter(Boolean))).sort(),
+      allFuelTypes: Array.from(new Set(cars.map((car) => car.fuel).filter(Boolean))).sort(),
+      allTransmissions: Array.from(new Set(cars.map((car) => car.transmission).filter(Boolean))).sort(),
+      minPrice: prices.length ? Math.min(...prices) : 0,
+      maxPrice: prices.length ? Math.max(...prices) : 0,
+      minYear: years.length ? Math.min(...years) : new Date().getFullYear(),
+      maxYear: years.length ? Math.max(...years) : new Date().getFullYear(),
+    };
+  }, [cars]);
 
   const [filters, setFilters] = useState<FilterState>({
-    priceRange: [minPrice, maxPrice],
+    priceRange: [stats.minPrice, stats.maxPrice],
     brands: [],
     fuelTypes: [],
-    yearRange: [minYear, maxYear],
-    transmissionTypes: []
+    yearRange: [stats.minYear, stats.maxYear],
+    transmissionTypes: [],
   });
 
-  // Real-time filtering effect
   useEffect(() => {
-    const filtered = cars.filter(car => {
-      // Price filter
+    setFilters({
+      priceRange: [stats.minPrice, stats.maxPrice],
+      brands: [],
+      fuelTypes: [],
+      yearRange: [stats.minYear, stats.maxYear],
+      transmissionTypes: [],
+    });
+  }, [stats.minPrice, stats.maxPrice, stats.minYear, stats.maxYear]);
+
+  useEffect(() => {
+    const filtered = cars.filter((car) => {
       const priceMatch = car.price >= filters.priceRange[0] && car.price <= filters.priceRange[1];
-      
-      // Brand filter
       const brandMatch = filters.brands.length === 0 || filters.brands.includes(car.brand);
-      
-      // Fuel filter
       const fuelMatch = filters.fuelTypes.length === 0 || filters.fuelTypes.includes(car.fuel);
-      
-      // Year filter
       const yearMatch = car.year >= filters.yearRange[0] && car.year <= filters.yearRange[1];
-      
-      // Transmission filter
-      const transmissionMatch = filters.transmissionTypes.length === 0 || filters.transmissionTypes.includes(car.transmission);
-      
+      const transmissionMatch =
+        filters.transmissionTypes.length === 0 || filters.transmissionTypes.includes(car.transmission);
+
       return priceMatch && brandMatch && fuelMatch && yearMatch && transmissionMatch;
     });
-    
+
     onFilter(filtered);
   }, [filters, cars, onFilter]);
 
   const resetFilters = () => {
     setFilters({
-      priceRange: [minPrice, maxPrice],
+      priceRange: [stats.minPrice, stats.maxPrice],
       brands: [],
       fuelTypes: [],
-      yearRange: [minYear, maxYear],
-      transmissionTypes: []
+      yearRange: [stats.minYear, stats.maxYear],
+      transmissionTypes: [],
     });
   };
 
-  const handleBrandChange = (brand: string) => {
-    const newBrands = filters.brands.includes(brand)
-      ? filters.brands.filter(b => b !== brand)
-      : [...filters.brands, brand];
-    setFilters({ ...filters, brands: newBrands });
+  const toggle = (key: "brands" | "fuelTypes" | "transmissionTypes", value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key].includes(value) ? prev[key].filter((item) => item !== value) : [...prev[key], value],
+    }));
   };
 
-  const handleFuelChange = (fuel: string) => {
-    const newFuels = filters.fuelTypes.includes(fuel)
-      ? filters.fuelTypes.filter(f => f !== fuel)
-      : [...filters.fuelTypes, fuel];
-    setFilters({ ...filters, fuelTypes: newFuels });
-  };
-
-  const handleTransmissionChange = (transmission: string) => {
-    const newTransmissions = filters.transmissionTypes.includes(transmission)
-      ? filters.transmissionTypes.filter(t => t !== transmission)
-      : [...filters.transmissionTypes, transmission];
-    setFilters({ ...filters, transmissionTypes: newTransmissions });
-  };
+  const priceDenominator = Math.max(1, stats.maxPrice - stats.minPrice);
+  const yearDenominator = Math.max(1, stats.maxYear - stats.minYear);
 
   return (
     <>
-      {/* Mobile Filter Button */}
-      <div className="lg:hidden mb-6">
+      <div className="mb-6 lg:hidden">
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 flex items-center justify-between font-montserrat"
+          type="button"
+          onClick={() => setIsExpanded((value) => !value)}
+          className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 font-montserrat"
         >
           <span className="font-semibold">Filtre vozidiel</span>
-          <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-            ↓
-          </span>
+          <span className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}>↓</span>
         </button>
       </div>
 
-      {/* Filter Panel */}
-      <div className={`bg-white rounded-lg shadow-lg p-6 ${isExpanded ? 'block' : 'hidden'} lg:block`}>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold font-jost">Filtre</h3>
-          <button
-            onClick={resetFilters}
-            className="text-sm text-blue-600 hover:text-blue-800 font-montserrat"
-          >
+      <div className={`rounded-lg bg-white p-6 shadow-lg ${isExpanded ? "block" : "hidden"} lg:block`}>
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="font-jost text-xl font-bold">Filtre</h3>
+          <button type="button" onClick={resetFilters} className="font-montserrat text-sm text-blue-600 hover:text-blue-800">
             Vymazať
           </button>
         </div>
 
         <div className="space-y-6">
-          {/* Price Range */}
-          <div>
-            <label className="block text-sm font-semibold mb-3 font-jost">
-              Cena (€): {filters.priceRange[0].toLocaleString()} - {filters.priceRange[1].toLocaleString()}
-            </label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-gray-600 font-montserrat">
-                <span>{minPrice.toLocaleString()} €</span>
-                <span>{maxPrice.toLocaleString()} €</span>
-              </div>
-              <div className="relative h-5">
-                {/* Track background */}
-                <div className="absolute w-full h-2 bg-gray-200 rounded-full top-1/2 -translate-y-1/2"></div>
+          <RangeFilter
+            label={`Cena (€): ${filters.priceRange[0].toLocaleString("sk-SK")} - ${filters.priceRange[1].toLocaleString("sk-SK")}`}
+            min={stats.minPrice}
+            max={stats.maxPrice}
+            minValue={filters.priceRange[0]}
+            maxValue={filters.priceRange[1]}
+            denominator={priceDenominator}
+            onMin={(value) => setFilters((prev) => ({ ...prev, priceRange: [Math.min(value, prev.priceRange[1]), prev.priceRange[1]] }))}
+            onMax={(value) => setFilters((prev) => ({ ...prev, priceRange: [prev.priceRange[0], Math.max(value, prev.priceRange[0])] }))}
+          />
 
-                {/* Active range */}
-                <div
-                  className="absolute h-2 bg-blue-500 rounded-full top-1/2 -translate-y-1/2"
-                  style={{
-                    left: `${((filters.priceRange[0] - minPrice) / (maxPrice - minPrice)) * 100}%`,
-                    right: `${100 - ((filters.priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100}%`
-                  }}
-                ></div>
+          <RangeFilter
+            label={`Rok: ${filters.yearRange[0]} - ${filters.yearRange[1]}`}
+            min={stats.minYear}
+            max={stats.maxYear}
+            minValue={filters.yearRange[0]}
+            maxValue={filters.yearRange[1]}
+            denominator={yearDenominator}
+            onMin={(value) => setFilters((prev) => ({ ...prev, yearRange: [Math.min(value, prev.yearRange[1]), prev.yearRange[1]] }))}
+            onMax={(value) => setFilters((prev) => ({ ...prev, yearRange: [prev.yearRange[0], Math.max(value, prev.yearRange[0])] }))}
+          />
 
-                {/* Min slider */}
-                <input
-                  type="range"
-                  min={minPrice}
-                  max={filters.priceRange[1]}
-                  value={filters.priceRange[0]}
-                  onChange={(e) => {
-                    setFilters({
-                      ...filters,
-                      priceRange: [parseInt(e.target.value), filters.priceRange[1]]
-                    });
-                  }}
-                  className="slider-thumb"
-                />
-
-                {/* Max slider */}
-                <input
-                  type="range"
-                  min={filters.priceRange[0]}
-                  max={maxPrice}
-                  value={filters.priceRange[1]}
-                  onChange={(e) => {
-                    setFilters({
-                      ...filters,
-                      priceRange: [filters.priceRange[0], parseInt(e.target.value)]
-                    });
-                  }}
-                  className="slider-thumb"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <input
-                  type="number"
-                  min={minPrice}
-                  max={filters.priceRange[1]}
-                  value={filters.priceRange[0]}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || minPrice;
-                    setFilters({
-                      ...filters,
-                      priceRange: [Math.min(value, filters.priceRange[1]), filters.priceRange[1]]
-                    });
-                  }}
-                  className="w-20 px-2 py-1 text-xs border border-gray-300 rounded font-montserrat"
-                />
-                <span className="text-gray-400 font-montserrat">-</span>
-                <input
-                  type="number"
-                  min={filters.priceRange[0]}
-                  max={maxPrice}
-                  value={filters.priceRange[1]}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || maxPrice;
-                    setFilters({
-                      ...filters,
-                      priceRange: [filters.priceRange[0], Math.max(value, filters.priceRange[0])]
-                    });
-                  }}
-                  className="w-20 px-2 py-1 text-xs border border-gray-300 rounded font-montserrat"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Year Range */}
-          <div>
-            <label className="block text-sm font-semibold mb-3 font-jost">
-              Rok: {filters.yearRange[0]} - {filters.yearRange[1]}
-            </label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-gray-600 font-montserrat">
-                <span>{minYear}</span>
-                <span>{maxYear}</span>
-              </div>
-              <div className="relative h-5">
-                {/* Track background */}
-                <div className="absolute w-full h-2 bg-gray-200 rounded-full top-1/2 -translate-y-1/2"></div>
-
-                {/* Active range */}
-                <div
-                  className="absolute h-2 bg-blue-500 rounded-full top-1/2 -translate-y-1/2"
-                  style={{
-                    left: `${((filters.yearRange[0] - minYear) / (maxYear - minYear)) * 100}%`,
-                    right: `${100 - ((filters.yearRange[1] - minYear) / (maxYear - minYear)) * 100}%`
-                  }}
-                ></div>
-
-                {/* Min slider */}
-                <input
-                  type="range"
-                  min={minYear}
-                  max={filters.yearRange[1]}
-                  value={filters.yearRange[0]}
-                  onChange={(e) => {
-                    setFilters({
-                      ...filters,
-                      yearRange: [parseInt(e.target.value), filters.yearRange[1]]
-                    });
-                  }}
-                  className="slider-thumb"
-                />
-
-                {/* Max slider */}
-                <input
-                  type="range"
-                  min={filters.yearRange[0]}
-                  max={maxYear}
-                  value={filters.yearRange[1]}
-                  onChange={(e) => {
-                    setFilters({
-                      ...filters,
-                      yearRange: [filters.yearRange[0], parseInt(e.target.value)]
-                    });
-                  }}
-                  className="slider-thumb"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <input
-                  type="number"
-                  min={minYear}
-                  max={filters.yearRange[1]}
-                  value={filters.yearRange[0]}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || minYear;
-                    setFilters({
-                      ...filters,
-                      yearRange: [Math.min(value, filters.yearRange[1]), filters.yearRange[1]]
-                    });
-                  }}
-                  className="w-16 px-2 py-1 text-xs border border-gray-300 rounded font-montserrat"
-                />
-                <span className="text-gray-400 font-montserrat">-</span>
-                <input
-                  type="number"
-                  min={filters.yearRange[0]}
-                  max={maxYear}
-                  value={filters.yearRange[1]}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || maxYear;
-                    setFilters({
-                      ...filters,
-                      yearRange: [filters.yearRange[0], Math.max(value, filters.yearRange[0])]
-                    });
-                  }}
-                  className="w-16 px-2 py-1 text-xs border border-gray-300 rounded font-montserrat"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Brands */}
-          <div>
-            <label className="block text-sm font-semibold mb-3 font-jost">Značka</label>
-            <div className="grid grid-cols-2 gap-1 max-h-40 overflow-y-auto">
-              {allBrands.map(brand => (
-                <label key={brand} className="flex items-center font-montserrat text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filters.brands.includes(brand)}
-                    onChange={() => handleBrandChange(brand)}
-                    className="mr-2 scale-75"
-                  />
-                  <span className="truncate">{brand}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Fuel Types */}
-          <div>
-            <label className="block text-sm font-semibold mb-3 font-jost">Palivo</label>
-            <div className="space-y-2">
-              {allFuelTypes.map(fuel => (
-                <label key={fuel} className="flex items-center font-montserrat">
-                  <input
-                    type="checkbox"
-                    checked={filters.fuelTypes.includes(fuel)}
-                    onChange={() => handleFuelChange(fuel)}
-                    className="mr-2"
-                  />
-                  {fuel}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Transmission */}
-          <div>
-            <label className="block text-sm font-semibold mb-3 font-jost">Prevodovka</label>
-            <div className="space-y-2">
-              {allTransmissions.map(transmission => (
-                <label key={transmission} className="flex items-center font-montserrat">
-                  <input
-                    type="checkbox"
-                    checked={filters.transmissionTypes.includes(transmission)}
-                    onChange={() => handleTransmissionChange(transmission)}
-                    className="mr-2"
-                  />
-                  {transmission}
-                </label>
-              ))}
-            </div>
-          </div>
-
+          <CheckGroup label="Značka" values={stats.allBrands} selected={filters.brands} onToggle={(value) => toggle("brands", value)} grid />
+          <CheckGroup label="Palivo" values={stats.allFuelTypes} selected={filters.fuelTypes} onToggle={(value) => toggle("fuelTypes", value)} />
+          <CheckGroup
+            label="Prevodovka"
+            values={stats.allTransmissions}
+            selected={filters.transmissionTypes}
+            onToggle={(value) => toggle("transmissionTypes", value)}
+          />
         </div>
       </div>
     </>
   );
-};
+}
 
-export default CarFilter;
+function RangeFilter({
+  label,
+  min,
+  max,
+  minValue,
+  maxValue,
+  denominator,
+  onMin,
+  onMax,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  minValue: number;
+  maxValue: number;
+  denominator: number;
+  onMin: (value: number) => void;
+  onMax: (value: number) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-3 block font-jost text-sm font-semibold">{label}</label>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between font-montserrat text-xs text-gray-600">
+          <span>{min.toLocaleString("sk-SK")}</span>
+          <span>{max.toLocaleString("sk-SK")}</span>
+        </div>
+        <div className="relative h-5">
+          <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-gray-200" />
+          <div
+            className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-blue-500"
+            style={{
+              left: `${((minValue - min) / denominator) * 100}%`,
+              right: `${100 - ((maxValue - min) / denominator) * 100}%`,
+            }}
+          />
+          <input type="range" min={min} max={maxValue} value={minValue} onChange={(event) => onMin(Number(event.target.value))} className="slider-thumb" />
+          <input type="range" min={minValue} max={max} value={maxValue} onChange={(event) => onMax(Number(event.target.value))} className="slider-thumb" />
+        </div>
+        <div className="flex items-center justify-between">
+          <input type="number" min={min} max={maxValue} value={minValue} onChange={(event) => onMin(Number(event.target.value) || min)} className="w-24 rounded border border-gray-300 px-2 py-1 font-montserrat text-xs" />
+          <span className="font-montserrat text-gray-400">-</span>
+          <input type="number" min={minValue} max={max} value={maxValue} onChange={(event) => onMax(Number(event.target.value) || max)} className="w-24 rounded border border-gray-300 px-2 py-1 font-montserrat text-xs" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CheckGroup({
+  label,
+  values,
+  selected,
+  onToggle,
+  grid = false,
+}: {
+  label: string;
+  values: string[];
+  selected: string[];
+  onToggle: (value: string) => void;
+  grid?: boolean;
+}) {
+  return (
+    <div>
+      <label className="mb-3 block font-jost text-sm font-semibold">{label}</label>
+      <div className={grid ? "grid max-h-40 grid-cols-2 gap-1 overflow-y-auto" : "space-y-2"}>
+        {values.map((value) => (
+          <label key={value} className="flex items-center font-montserrat text-sm">
+            <input type="checkbox" checked={selected.includes(value)} onChange={() => onToggle(value)} className="mr-2" />
+            <span className="truncate">{value}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}

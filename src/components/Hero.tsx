@@ -1,49 +1,38 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 
-const Hero: React.FC = () => {
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.pageYOffset;
-      const parallaxBg = document.querySelector('.parallax-bg') as HTMLElement;
-
-      if (parallaxBg) {
-        const speed = 0.5;
-        parallaxBg.style.transform = `translateY(${scrolled * speed}px)`;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+export default function Hero() {
   return (
-    <section className="relative min-h-[80vh] bg-gray-400 flex items-center justify-center text-white overflow-hidden">
+    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-gray-400 text-white">
       <div
-        className="parallax-bg absolute inset-0 bg-cover bg-center will-change-transform"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/hero section.jpg")',
-          height: '120%',
-          top: '-10%',
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.52)), url("/hero section.jpg")',
         }}
       />
-      <div className="relative container mx-auto px-4 z-10">
-        <div className="text-left max-w-4xl px-0 md:px-0">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 font-jost hero-title">
-            VÍTAME VÁS V AUTOBAZÁRI<br />
+      <div className="relative z-10 container mx-auto px-4">
+        <div className="max-w-4xl text-left">
+          <h1 className="mb-6 font-jost text-5xl font-bold md:text-7xl">
+            VÍTAME VÁS V AUTOBAZÁRI
+            <br />
             <span className="text-blue-400">MT AUTOS</span>
             <br className="md:hidden" />
-            <span className="text-2xl md:text-4xl text-white underline">Sučany pri Martine!</span>
+            <span className="text-2xl text-white underline md:text-4xl">Sučany pri Martine!</span>
           </h1>
-          <p className="text-lg md:text-2xl mb-10 max-w-3xl leading-relaxed font-montserrat">
-            Vyberte si spoľahlivé vozidlo z našej ponuky nových, kontrolovaných
-            ojazdených automobilov a nechajte si ho doviesť priamo ku vám.
+          <p className="mb-10 max-w-3xl font-montserrat text-lg leading-relaxed md:text-2xl">
+            Vyberte si spoľahlivé vozidlo z našej ponuky nových, kontrolovaných ojazdených
+            automobilov a nechajte si ho doviesť priamo ku vám.
           </p>
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
-            <Link to="/ponuka" className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded text-white font-bold text-lg font-montserrat cta-btn border-2 border-white w-full md:w-auto text-center inline-block">
+          <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+            <Link
+              href="/ponuka"
+              className="inline-block w-full rounded border-2 border-white bg-red-600 px-6 py-3 text-center font-montserrat text-lg font-bold text-white hover:bg-red-700 md:w-auto"
+            >
               Pozrite si ponuku
             </Link>
-            <Link to="/kontakt" className="bg-black hover:bg-gray-800 px-6 py-3 rounded text-white font-bold text-lg font-montserrat cta-btn border-2 border-white w-full md:w-auto text-center inline-block">
+            <Link
+              href="/kontakt"
+              className="inline-block w-full rounded border-2 border-white bg-black px-6 py-3 text-center font-montserrat text-lg font-bold text-white hover:bg-gray-800 md:w-auto"
+            >
               Kontakt
             </Link>
           </div>
@@ -51,6 +40,4 @@ const Hero: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default Hero;
+}
