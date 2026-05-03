@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const services = [
   { title: "Predaj", image: "/predaj.jpeg", link: "/ponuka" },
@@ -15,11 +16,17 @@ export default function Services() {
         <h2 className="mb-12 text-center font-jost text-5xl font-bold md:text-6xl">NAŠE SLUŽBY</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-5">
           {services.map((service) => (
-            <Link key={service.title} href={service.link} className="group relative block overflow-hidden rounded-lg">
-              <img
+            <Link
+              key={service.title}
+              href={service.link}
+              className="group relative block h-64 overflow-hidden rounded-lg"
+            >
+              <Image
                 src={service.image}
                 alt={service.title}
-                className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 20vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-all duration-300 group-hover:from-black/80" />
               <div className="absolute inset-x-0 bottom-0 p-4">

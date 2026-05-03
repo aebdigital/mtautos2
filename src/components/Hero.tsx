@@ -1,15 +1,20 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Hero() {
   return (
     <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-gray-400 text-white">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.52)), url("/hero section.jpg")',
-        }}
-      />
-      <div className="relative z-10 container mx-auto px-4">
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/hero section.jpg"
+          alt="MT AUTOS Hero"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+      <div className="container relative z-10 mx-auto px-4">
         <div className="max-w-4xl text-left">
           <h1 className="mb-6 font-jost text-5xl font-bold md:text-7xl">
             VÍTAME VÁS V AUTOBAZÁRI

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import MiniHero from "./MiniHero";
 
@@ -55,14 +56,21 @@ export default function ServicePage({
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-6 font-jost text-4xl font-bold md:text-5xl">{heading}</h2>
-            <p className="mx-auto max-w-3xl font-montserrat text-lg leading-relaxed text-gray-600">{intro}</p>
+            <p className="mx-auto max-w-3xl font-montserrat text-lg leading-relaxed text-gray-600">
+              {intro}
+            </p>
           </div>
 
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {features.map((feature) => (
-                <div key={feature.title} className="rounded-lg border border-gray-100 bg-gray-50 p-6 transition-shadow hover:shadow-lg">
-                  <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${accentBgClass} ${accentTextClass}`}>
+                <div
+                  key={feature.title}
+                  className="rounded-lg border border-gray-100 bg-gray-50 p-6 transition-shadow hover:shadow-lg"
+                >
+                  <div
+                    className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${accentBgClass} ${accentTextClass}`}
+                  >
                     {feature.icon}
                   </div>
                   <h3 className="mb-3 font-jost text-xl font-bold">{feature.title}</h3>
@@ -72,8 +80,12 @@ export default function ServicePage({
             </div>
 
             <div className="relative">
-              <img src={image} alt={imageAlt} className="h-[420px] w-full rounded-lg object-cover shadow-xl" />
-              <div className={`absolute -bottom-6 -right-6 rounded-lg bg-black p-6 text-white shadow-xl md:p-8`}>
+              <div className="relative h-[420px] w-full overflow-hidden rounded-lg shadow-xl">
+                <Image src={image} alt={imageAlt} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+              </div>
+              <div
+                className={`absolute -bottom-6 -right-6 rounded-lg bg-black p-6 text-white shadow-xl md:p-8`}
+              >
                 <div className="font-jost text-4xl font-bold">MT</div>
                 <div className="font-montserrat text-sm uppercase tracking-wide">AUTOS</div>
               </div>
@@ -105,7 +117,10 @@ export default function ServicePage({
         <div className="container mx-auto px-4 text-center">
           <h2 className="mb-6 font-jost text-4xl font-bold">{ctaTitle}</h2>
           <p className="mx-auto mb-10 max-w-2xl font-montserrat text-xl text-white/90">{ctaText}</p>
-          <Link href={ctaHref} className="inline-block rounded-lg bg-white px-10 py-4 font-montserrat text-lg font-bold text-black transition-colors hover:bg-gray-100">
+          <Link
+            href={ctaHref}
+            className="inline-block rounded-lg bg-white px-10 py-4 font-montserrat text-lg font-bold text-black transition-colors hover:bg-gray-100"
+          >
             {ctaLabel}
           </Link>
         </div>

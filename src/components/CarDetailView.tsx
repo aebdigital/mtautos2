@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -36,16 +37,28 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
   const basicData = [
     { label: "Pohon", value: car.drivetrain, icon: icons.Pohon },
     { label: "Palivo", value: car.fuel, icon: icons.Palivo },
-    { label: "Kilometre", value: car.mileage ? `${car.mileage.toLocaleString("sk-SK")} km` : null, icon: icons.Kilometre },
+    {
+      label: "Kilometre",
+      value: car.mileage ? `${car.mileage.toLocaleString("sk-SK")} km` : null,
+      icon: icons.Kilometre,
+    },
     { label: "Výkon", value: car.power, icon: icons.Výkon },
     { label: "Prevodovka", value: formatTransmission(car), icon: icons.Prevodovka },
     { label: "Objem motora", value: car.engine, icon: icons["Objem motora"] },
-    { label: "Rok výroby", value: car.month && car.year ? `${car.month}/${car.year}` : car.year?.toString(), icon: icons["Rok výroby"] },
+    {
+      label: "Rok výroby",
+      value: car.month && car.year ? `${car.month}/${car.year}` : car.year?.toString(),
+      icon: icons["Rok výroby"],
+    },
     { label: "Karoséria", value: car.bodyType, icon: icons.Karoséria },
     { label: "Dvere", value: car.doors, icon: icons.Dvere },
     { label: "Počet miest", value: car.seats?.toString(), icon: icons["Počet miest"] },
     { label: "Farba", value: car.color, icon: icons.Farba },
-    { label: "Platnosť STK/EK", value: car.stkValidity ? formatMonthYear(car.stkValidity) : null, icon: icons["Rok výroby"] },
+    {
+      label: "Platnosť STK/EK",
+      value: car.stkValidity ? formatMonthYear(car.stkValidity) : null,
+      icon: icons["Rok výroby"],
+    },
     { label: "VIN", value: car.vin, icon: icons.VIN },
   ].filter((item) => item.value && item.value !== "N/A" && item.value !== "");
 
@@ -54,12 +67,14 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
       <div className="py-8">
         <div className="block w-full md:hidden">
           <div className="relative h-[40vh] w-full">
-            <img
+            <Image
               src={galleryImages[currentImageIndex]}
               alt={`${car.brand} ${car.model}`}
-              className="h-full w-full object-cover"
-              loading="eager"
+              fill
+              className="cursor-pointer object-cover"
+              priority
               onClick={() => setLightboxIndex(currentImageIndex)}
+              sizes="100vw"
             />
             {galleryImages.length > 1 ? (
               <>
@@ -83,8 +98,19 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
 
         <div className="hidden w-full overflow-x-auto px-1 md:block">
           <div className="flex h-[499px] gap-1">
-            <button type="button" onClick={() => setLightboxIndex(0)} className="h-[499px] w-[624px] flex-shrink-0 overflow-hidden">
-              <img src={galleryImages[0]} alt={`${car.brand} ${car.model}`} className="h-full w-full object-cover transition-opacity hover:opacity-90" loading="eager" />
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(0)}
+              className="relative h-[499px] w-[624px] flex-shrink-0 overflow-hidden"
+            >
+              <Image
+                src={galleryImages[0]}
+                alt={`${car.brand} ${car.model}`}
+                fill
+                className="object-cover transition-opacity hover:opacity-90"
+                priority
+                sizes="624px"
+              />
             </button>
             <div className="flex gap-1">
               {galleryImages.slice(1).map((image, index) => (
@@ -92,9 +118,15 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
                   type="button"
                   key={`${image}-${index}`}
                   onClick={() => setLightboxIndex(index + 1)}
-                  className="h-[248px] w-[336px] flex-shrink-0 overflow-hidden"
+                  className="relative h-[248px] w-[336px] flex-shrink-0 overflow-hidden"
                 >
-                  <img src={image} alt={`${car.brand} ${car.model} ${index + 2}`} className="h-full w-full object-cover transition-opacity hover:opacity-80" loading="lazy" />
+                  <Image
+                    src={image}
+                    alt={`${car.brand} ${car.model} ${index + 2}`}
+                    fill
+                    className="object-cover transition-opacity hover:opacity-80"
+                    sizes="336px"
+                  />
                 </button>
               ))}
             </div>
@@ -115,7 +147,9 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
             ) : car.reserved ? (
               <Badge>REZERVOVANÉ</Badge>
             ) : null}
-            {car.vatDeductible && car.priceWithoutVat ? <Badge>Odpočet DPH: {car.priceWithoutVat.toLocaleString("sk-SK")} €</Badge> : null}
+            {car.vatDeductible && car.priceWithoutVat ? (
+              <Badge>Odpočet DPH: {car.priceWithoutVat.toLocaleString("sk-SK")} €</Badge>
+            ) : null}
           </div>
         </div>
 
@@ -125,7 +159,9 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
             <div className="mb-10 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
               {basicData.map((item) => (
                 <div key={item.label} className="flex items-center">
-                  <img src={item.icon} alt={item.label} className="mr-3 h-10 w-10 flex-shrink-0" />
+                  <div className="relative mr-3 h-10 w-10 flex-shrink-0">
+                    <Image src={item.icon} alt={item.label} fill />
+                  </div>
                   <div>
                     <div className="font-montserrat text-lg leading-tight">{item.label}</div>
                     <div className="font-montserrat text-base font-bold">{item.value}</div>
@@ -139,7 +175,9 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
         {car.description ? (
           <section className="mx-auto mb-10 w-[90%] md:w-4/5">
             <h2 className="mb-5 font-jost text-2xl font-semibold">Popis</h2>
-            <div className="overflow-hidden break-words rounded-lg bg-gray-50 p-4 font-montserrat whitespace-pre-wrap">{car.description}</div>
+            <div className="overflow-hidden break-words rounded-lg bg-gray-50 p-4 font-montserrat whitespace-pre-wrap">
+              {car.description}
+            </div>
           </section>
         ) : null}
 
@@ -148,7 +186,8 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
             <h2 className="mb-5 font-jost text-2xl font-semibold">Výbava</h2>
             <div className="space-y-6">
               {equipmentCategories.map((category) => {
-                const categoryFeatures = car.features?.filter((feature) => category.options.includes(feature)) || [];
+                const categoryFeatures =
+                  car.features?.filter((feature) => category.options.includes(feature)) || [];
                 if (!categoryFeatures.length) return null;
                 return (
                   <div key={category.name}>
@@ -167,22 +206,34 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
         ) : null}
 
         <div className="mx-auto mb-12 w-[90%] md:w-4/5">
-          <Link href="/ponuka" className="inline-block rounded bg-black px-6 py-3 font-montserrat font-bold text-white hover:bg-gray-800">
+          <Link
+            href="/ponuka"
+            className="inline-block rounded bg-black px-6 py-3 font-montserrat font-bold text-white hover:bg-gray-800"
+          >
             Späť na ponuku
           </Link>
         </div>
       </div>
 
       {lightboxIndex !== null ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur" onClick={() => setLightboxIndex(null)}>
-          <button type="button" onClick={() => setLightboxIndex(null)} className="fixed right-4 top-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-lg">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(null)}
+            className="fixed right-4 top-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-lg"
+          >
             <X className="h-8 w-8" />
           </button>
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              setLightboxIndex((prev) => (prev === null ? 0 : (prev - 1 + galleryImages.length) % galleryImages.length));
+              setLightboxIndex((prev) =>
+                prev === null ? 0 : (prev - 1 + galleryImages.length) % galleryImages.length
+              );
             }}
             className="fixed left-4 top-1/2 z-50 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-black shadow-lg md:left-8"
           >
@@ -198,12 +249,14 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
           >
             <ChevronRight className="h-8 w-8" />
           </button>
-          <img
-            src={galleryImages[lightboxIndex]}
-            alt={`${car.brand} ${car.model}`}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-            onClick={(event) => event.stopPropagation()}
-          />
+          <div className="relative h-[90vh] w-[90vw]" onClick={(event) => event.stopPropagation()}>
+            <Image
+              src={galleryImages[lightboxIndex]}
+              alt={`${car.brand} ${car.model}`}
+              fill
+              className="object-contain"
+            />
+          </div>
           <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded bg-white px-3 py-1 text-sm text-black shadow">
             {lightboxIndex + 1} / {galleryImages.length}
           </div>
@@ -232,7 +285,11 @@ function GalleryButton({ side, label, onClick }: { side: "left" | "right"; label
 }
 
 function Badge({ children }: { children: ReactNode }) {
-  return <div className="inline-block rounded bg-black px-4 py-2 font-montserrat text-sm font-bold text-white">{children}</div>;
+  return (
+    <div className="inline-block rounded bg-black px-4 py-2 font-montserrat text-sm font-bold text-white">
+      {children}
+    </div>
+  );
 }
 
 function formatTransmission(car: PublicCarFull) {
@@ -252,7 +309,12 @@ function FeatureItem({ feature, car }: { feature: string; car: PublicCarFull }) 
   const translations: Record<string, Record<string, string>> = {
     parkingSensors: { front: "Predné", rear: "Zadné", front_rear: "Predné + Zadné" },
     acType: { manual: "Manuálna", automatic: "Automatická" },
-    electricWindows: { "2_front": "2x (predné)", "4_all": "4x (všetky)", "2": "2x (predné)", "4": "4x (všetky)" },
+    electricWindows: {
+      "2_front": "2x (predné)",
+      "4_all": "4x (všetky)",
+      "2": "2x (predné)",
+      "4": "4x (všetky)",
+    },
     heatedSeats: { front: "Predné", front_rear: "Predné + Zadné", all: "Všetky" },
   };
 
@@ -285,7 +347,8 @@ function FeatureItem({ feature, car }: { feature: string; car: PublicCarFull }) 
 
 function UncategorizedFeatures({ car }: { car: PublicCarFull }) {
   const allCategoryOptions = equipmentCategories.flatMap((category) => category.options);
-  const uncategorizedFeatures = car.features?.filter((feature) => !allCategoryOptions.includes(feature)) || [];
+  const uncategorizedFeatures =
+    car.features?.filter((feature) => !allCategoryOptions.includes(feature)) || [];
 
   if (!uncategorizedFeatures.length) return null;
 

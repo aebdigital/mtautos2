@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Car } from "@/types/car";
 import { createCarSlug } from "@/lib/site";
 
@@ -21,16 +22,17 @@ export default function CarCard({ car }: CarCardProps) {
   return (
     <Link href={href} className="car-card block overflow-hidden bg-white shadow-lg transition-all hover:shadow-xl">
       <div className="relative h-48 overflow-hidden">
-        <img
+        <Image
           src={car.image || "/hero section.jpg"}
           alt={`${car.brand} ${car.model}`}
-          className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
-          loading="lazy"
+          fill
+          className="object-cover transition-transform duration-300 hover:scale-110"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute right-0 top-0 rounded-bl bg-red-600 px-4 py-2 font-jost text-lg font-bold text-white">
+        <div className="absolute right-0 top-0 z-10 rounded-bl bg-red-600 px-4 py-2 font-jost text-lg font-bold text-white">
           {car.price.toLocaleString("sk-SK")} €
         </div>
-        <div className="absolute left-2 top-2 flex flex-col gap-2">
+        <div className="absolute left-2 top-2 z-10 flex flex-col gap-2">
           {car.sold ? (
             <div className="rounded-full bg-red-600 px-2 py-1 font-montserrat text-xs font-bold uppercase text-white">
               PREDANÉ
@@ -66,7 +68,9 @@ export default function CarCard({ car }: CarCardProps) {
 function CarStat({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <div className="flex items-center">
-      <img className="mr-1 h-4 w-4" src={icon} alt={label} />
+      <div className="relative mr-1 h-4 w-4">
+        <Image src={icon} alt={label} fill />
+      </div>
       <span className="truncate font-bold text-gray-800">{value}</span>
     </div>
   );

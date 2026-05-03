@@ -1,3 +1,4 @@
+import Image from "next/image";
 import CookieSettingsButton from "./CookieSettingsButton";
 
 interface FooterProps {
@@ -9,7 +10,14 @@ export default function Footer({ phones }: FooterProps) {
     <footer className="bg-black py-12 text-white">
       <div className="container mx-auto px-4">
         <div className="mb-8 flex justify-start">
-          <img src="/logo-removebg-preview (1).png" alt="MT AUTOS" className="h-16 w-auto" />
+          <div className="relative h-16 w-48">
+            <Image
+              src="/logo-removebg-preview (1).png"
+              alt="MT AUTOS"
+              fill
+              className="object-contain object-left"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
