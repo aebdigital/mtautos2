@@ -85,7 +85,11 @@ export default function ServicePage({
       <section className="bg-gray-50 py-20">
         <div className="container mx-auto px-4">
           <h2 className="mb-16 text-center font-jost text-4xl font-bold">Ako to funguje?</h2>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
+          <div
+            className={`mx-auto grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 ${
+              steps.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+            }`}
+          >
             {steps.map((item) => (
               <div key={item.step} className="text-center">
                 <div className="mb-4 font-jost text-6xl font-bold text-gray-200">{item.step}</div>
