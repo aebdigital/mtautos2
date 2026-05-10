@@ -4,10 +4,10 @@ import { CheckCircle, CircleDollarSign, ClipboardCheck, Landmark, ShieldCheck, W
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
 import CarCard from "@/components/CarCard";
-import { getCarsForPonuka } from "@/lib/cars";
+import { getCarsForHomepage } from "@/lib/cars";
 import { absoluteUrl, siteDescription, siteTitle } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "MT AUTOS - Autobazár Sučany pri Martine",
@@ -24,9 +24,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const cars = await getCarsForPonuka();
-  const homepageCars = cars.filter((car) => car.showOnHomepage);
-  const displayCars = (homepageCars.length > 0 ? homepageCars : cars).slice(0, 4);
+  const { cars: displayCars, totalCount } = await getCarsForHomepage(4);
 
   return (
     <div className="min-h-screen bg-white">
@@ -45,13 +43,13 @@ export default async function HomePage() {
                   <CarCard key={car.id} car={car} />
                 ))}
               </div>
-              {cars.length > 4 ? (
+              {totalCount > displayCars.length ? (
                 <div className="mt-8 text-center">
                   <Link
                     href="/ponuka"
                     className="inline-block rounded-lg bg-red-600 px-8 py-4 font-montserrat text-lg font-bold text-white hover:bg-red-700"
                   >
-                    Zobraziť všetky vozidlá ({cars.length})
+                    Zobraziť všetky vozidlá ({totalCount})
                   </Link>
                 </div>
               ) : null}

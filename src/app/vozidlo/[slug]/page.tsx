@@ -5,7 +5,7 @@ import CarDetailView from "@/components/CarDetailView";
 import { getCarFullById } from "@/lib/cars";
 import { absoluteUrl, extractCarIdFromSlug } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type VehiclePageProps = {
   params: Promise<{ slug: string }>;

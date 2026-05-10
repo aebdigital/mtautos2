@@ -4,7 +4,7 @@ import VehicleInventory from "@/components/VehicleInventory";
 import { getCarsForPonuka } from "@/lib/cars";
 import { absoluteUrl } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Ponuka vozidiel",

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+
+const INITIAL_THUMB_COUNT = 3;
 import type { PublicCarFull } from "@/types/car";
 import { equipmentCategories } from "@/data/equipmentOptions";
 
@@ -30,9 +32,27 @@ interface CarDetailViewProps {
 export default function CarDetailView({ car }: CarDetailViewProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showAllThumbs, setShowAllThumbs] = useState(false);
 
   const images = [car.mainImageUrl, ...(car.galleryImageUrls || [])].filter(Boolean);
   const galleryImages = images.length ? images : [car.image || "/hero section.jpg"];
+
+  useEffect(() => {
+    const handle = window.requestIdleCallback
+      ? window.requestIdleCallback(() => setShowAllThumbs(true), { timeout: 1500 })
+      : window.setTimeout(() => setShowAllThumbs(true), 800);
+    return () => {
+      if (window.cancelIdleCallback && typeof handle === "number") {
+        window.cancelIdleCallback(handle);
+      } else {
+        window.clearTimeout(handle as number);
+      }
+    };
+  }, []);
+
+  const visibleThumbs = showAllThumbs
+    ? galleryImages.slice(1)
+    : galleryImages.slice(1, 1 + INITIAL_THUMB_COUNT);
 
   const basicData = [
     { label: "Pohon", value: car.drivetrain, icon: icons.Pohon },
@@ -113,7 +133,7 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
               />
             </button>
             <div className="flex gap-1">
-              {galleryImages.slice(1).map((image, index) => (
+              {visibleThumbs.map((image, index) => (
                 <button
                   type="button"
                   key={`${image}-${index}`}
@@ -124,6 +144,8 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
                     src={image}
                     alt={`${car.brand} ${car.model} ${index + 2}`}
                     fill
+                    loading="lazy"
+                    quality={65}
                     className="object-cover transition-opacity hover:opacity-80"
                     sizes="336px"
                   />
@@ -159,9 +181,15 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
             <div className="mb-10 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
               {basicData.map((item) => (
                 <div key={item.label} className="flex items-center">
-                  <div className="relative mr-3 h-10 w-10 flex-shrink-0">
-                    <Image src={item.icon} alt={item.label} fill />
-                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.icon}
+                    alt={item.label}
+                    width={40}
+                    height={40}
+                    className="mr-3 h-10 w-10 flex-shrink-0"
+                    loading="lazy"
+                  />
                   <div>
                     <div className="font-montserrat text-lg leading-tight">{item.label}</div>
                     <div className="font-montserrat text-base font-bold">{item.value}</div>
@@ -254,6 +282,8 @@ export default function CarDetailView({ car }: CarDetailViewProps) {
               src={galleryImages[lightboxIndex]}
               alt={`${car.brand} ${car.model}`}
               fill
+              sizes="90vw"
+              quality={80}
               className="object-contain"
             />
           </div>

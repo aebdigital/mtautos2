@@ -79,10 +79,45 @@ export async function getCarsForPonuka(): Promise<Car[]> {
   return (data ?? []).map(mapPublicCar).map(toCar);
 }
 
+export async function getCarsForHomepage(limit = 4): Promise<{ cars: Car[]; totalCount: number }> {
+  const [featured, countRes] = await Promise.all([
+    supabase
+      .from("cars")
+      .select(carSelect)
+      .eq("site_id", SITE_ID)
+      .is("deleted_at", null)
+      .eq("show_on_homepage", true)
+      .order("created_at", { ascending: false })
+      .limit(limit),
+    supabase
+      .from("cars")
+      .select("id", { count: "exact", head: true })
+      .eq("site_id", SITE_ID)
+      .is("deleted_at", null),
+  ]);
+
+  let rows = featured.data ?? [];
+  if (rows.length < limit) {
+    const fallback = await supabase
+      .from("cars")
+      .select(carSelect)
+      .eq("site_id", SITE_ID)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    rows = (fallback.data ?? []).slice(0, limit);
+  }
+
+  return {
+    cars: rows.map(mapPublicCar).map(toCar),
+    totalCount: countRes.count ?? 0,
+  };
+}
+
 export async function getCarsForSitemap(): Promise<PublicCar[]> {
   const { data, error } = await supabase
     .from("cars")
-    .select(carSelect)
+    .select("id, brand, model, year, image, updated_at, created_at")
     .eq("site_id", SITE_ID)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
@@ -95,10 +130,19 @@ export async function getCarsForSitemap(): Promise<PublicCar[]> {
   return (data ?? []).map(mapPublicCar);
 }
 
+const carFullSelect = `
+  id, brand, model, year, month, price, mileage, fuel, transmission, transmission_type,
+  transmission_gears, image, images, features, engine, power, body_type, drivetrain, vin,
+  description, reserved, reserved_until, sold, show_on_homepage, vat_deductible,
+  price_without_vat, doors, seats, color, airbag_count, radio_cd, radio_cd_mp3,
+  android_auto, ac_type, ac_zones, parking_sensors, electric_windows, heated_seats,
+  stk_valid_until, updated_at, created_at
+`;
+
 export async function getCarFullById(carId: string): Promise<PublicCarFull | null> {
   const { data, error } = await supabase
     .from("cars")
-    .select("*")
+    .select(carFullSelect)
     .eq("id", carId)
     .eq("site_id", SITE_ID)
     .is("deleted_at", null)

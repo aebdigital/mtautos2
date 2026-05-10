@@ -26,6 +26,7 @@ export default function CarCard({ car }: CarCardProps) {
           src={car.image || "/hero section.jpg"}
           alt={`${car.brand} ${car.model}`}
           fill
+          quality={65}
           className="object-cover transition-transform duration-300 hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
@@ -68,9 +69,8 @@ export default function CarCard({ car }: CarCardProps) {
 function CarStat({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <div className="flex items-center">
-      <div className="relative mr-1 h-4 w-4">
-        <Image src={icon} alt={label} fill />
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={icon} alt={label} width={16} height={16} className="mr-1 h-4 w-4" loading="lazy" />
       <span className="truncate font-bold text-gray-800">{value}</span>
     </div>
   );

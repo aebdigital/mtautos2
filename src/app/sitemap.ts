@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getCarsForSitemap } from "@/lib/cars";
 import { createCarSlug, siteUrl } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = ["", "/ponuka", "/dovoz", "/leasing", "/vykup", "/pzp", "/kontakt", "/ochrana-osobnych-udajov"];
