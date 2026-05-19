@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -14,7 +15,12 @@ const navItems = [
   { href: "/kontakt", label: "Kontakt" },
 ];
 
+function isActivePath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Header() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -33,15 +39,26 @@ export default function Header() {
         </Link>
 
         <nav className="hidden h-full items-center md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex h-full items-center px-4 font-jost font-bold text-black hover:text-gray-600"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = isActivePath(pathname, item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className="group flex h-full items-center px-4 font-jost font-bold text-black transition-colors duration-300 hover:text-gray-600"
+              >
+                <span
+                  className={`relative pb-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:bg-black after:transition-transform after:duration-300 after:ease-out ${
+                    isActive ? "after:scale-x-100" : "after:scale-x-0 group-hover:after:scale-x-100"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center">
@@ -81,16 +98,27 @@ export default function Header() {
         </div>
 
         <nav className="flex h-full flex-col gap-5 bg-white p-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="font-jost text-5xl font-bold text-black hover:text-gray-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = isActivePath(pathname, item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className="group w-fit font-jost text-5xl font-bold text-black transition-colors duration-300 hover:text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span
+                  className={`relative pb-1 after:absolute after:bottom-0 after:left-0 after:h-1 after:w-full after:origin-left after:bg-black after:transition-transform after:duration-300 after:ease-out ${
+                    isActive ? "after:scale-x-100" : "after:scale-x-0 group-hover:after:scale-x-100"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>

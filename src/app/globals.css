@@ -101,3 +101,58 @@ select {
   font-weight: 700;
   letter-spacing: 0;
 }
+
+.review-marquee {
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+
+.review-marquee-track {
+  animation: review-marquee var(--review-marquee-duration, 36s) linear infinite;
+}
+
+.review-marquee:hover .review-marquee-track {
+  animation-play-state: paused;
+}
+
+.review-marquee-card {
+  width: calc(100vw - 3rem);
+}
+
+@media (min-width: 768px) {
+  .review-marquee-card {
+    width: calc((100vw - 5rem) / 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .review-marquee-card {
+    width: calc((100vw - 6.5rem) / 3);
+  }
+}
+
+@media (min-width: 1280px) {
+  .review-marquee-card {
+    width: calc((1280px - 4.5rem) / 3);
+  }
+}
+
+@keyframes review-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee {
+    mask-image: none;
+    overflow-x: auto;
+  }
+
+  .review-marquee-track {
+    animation: none;
+  }
+}

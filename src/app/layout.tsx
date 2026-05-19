@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import GoogleReviews from "@/components/GoogleReviews";
 import CookieConsent from "@/components/CookieConsent";
 import PromoPopups from "@/components/PromoPopups";
 import AnnouncementPopupClient from "@/components/AnnouncementPopupClient";
@@ -81,6 +82,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <Header />
         <main className="min-h-screen pt-16">{children}</main>
+        <GoogleReviews />
         <Footer phones={phones} />
         <AnnouncementPopupClient popup={popup} />
         <PromoPopups />
