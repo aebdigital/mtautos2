@@ -6,3 +6,9 @@ dist
 *.tsbuildinfo
 .DS_Store
 .image-backup/
+
+# cloudflare
+/.open-next/
+/.wrangler/
+.dev.vars*
+cloudflare-env.d.ts
