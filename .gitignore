@@ -12,3 +12,6 @@ dist
 /.wrangler/
 .dev.vars*
 cloudflare-env.d.ts
+.env.local
+.wrangler/
+.open-next/
